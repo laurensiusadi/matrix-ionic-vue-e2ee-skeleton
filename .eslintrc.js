@@ -1,6 +1,7 @@
 module.exports = {
   root: true,
   env: {
+    browser: true,
     node: true
   },
   'extends': [
@@ -12,8 +13,8 @@ module.exports = {
     ecmaVersion: 2020
   },
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-console': import.meta.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-debugger': import.meta.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'vue/no-deprecated-slot-attribute': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
   },

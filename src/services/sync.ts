@@ -2,7 +2,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { MatrixEvent, Room, RoomMember } from 'matrix-js-sdk';
 import { ref, Ref } from 'vue';
 import { GetSenderAvatar, IsMyMessage } from './../helpers/matrix';
-import { LoggerService } from './logger';
+import { logger } from './logger';
 import { GetClient, MatrixService } from './matrix';
 
 let lastEventTrackerId: any = null;
@@ -57,7 +57,7 @@ const HandleMessage = (event: MatrixEvent) => {
 }
 
 const VerifyMembersDevices = async (room: Room) => {
-    LoggerService.info('Verifying members device');
+    logger.info('Verifying members device');
     const _client = GetClient();
     const e2eMembers = await room.getEncryptionTargetMembers();
     for (const member of e2eMembers) {
@@ -68,7 +68,7 @@ const VerifyMembersDevices = async (room: Room) => {
                 await _client.setDeviceVerified(member.userId, device.deviceId, true);
             }
         }
-        LoggerService.info('Members device verified');
+        logger.info('Members device verified');
     }
 }
 
@@ -86,7 +86,7 @@ export const RoomTimelineListener = () => {
             HandleMessage(event);
         }
       
-        LoggerService.debug('Room.timeline %o', event);
+        logger.debug('Room.timeline %o', event);
         
     });
 }
@@ -138,7 +138,7 @@ const InviteUserToRoom = async (roomId: string, userId: string) => {
     await GetClient()
         .invite(roomId, userId)
         .then(() => {
-            LoggerService.info('User was invited');
+            logger.info('User was invited');
         })
         .catch((err) => {
             console.error("err", err);

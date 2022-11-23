@@ -1,6 +1,6 @@
 const ConfigService = {
-    MatrixUrl: process.env.MATRIX_SERVER_URL || 'https://matrix.org',
-    logLevel: process.env.LOG_LEVEL || 'silly',
+    MatrixUrl: import.meta.env.VITE_MATRIX_SERVER_URL || 'https://matrix.org',
+    logLevel: import.meta.env.VITE_LOG_LEVEL || 'silly',
     appStoragePrefix: 'skeleton-store',
     storeName: 'skeleton-store-mx-sync',
     appDataStore: 'skeleton-store-data',

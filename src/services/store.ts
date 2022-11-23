@@ -1,6 +1,6 @@
 import { EventType, IndexedDBStore, MatrixEvent } from 'matrix-js-sdk';
 import ConfigService from './config';
-import { LoggerService } from './logger';
+import { logger } from './logger';
 
 class CustomIndexedDBStore extends IndexedDBStore {
     /**
@@ -25,7 +25,7 @@ export const storeExists = async () => {
         indexedDB, ConfigService.storeName,
     );
     if(!exists) {
-        LoggerService.error('Store does not exist or was deleted');
+        logger.error('Store does not exist or was deleted');
         
         //TODO: recommend a full sync or do full sync automatically
     }

@@ -6,7 +6,7 @@ import { IdbLoad, IdbSave } from './../helpers/idb';
 import { GetPickleKey } from './../helpers/ssss';
 import ConfigService from './config';
 import { PickleKeyToAesKey, PrepareCryptoBasics, SetupCryptoBasics } from './crypto';
-import { LoggerService } from './logger';
+import { logger } from './logger';
 import { CreateIndexDBStore } from './store';
 
 export interface MatrixServiceInterface {
@@ -46,7 +46,7 @@ export const MatrixService: MatrixServiceInterface = {
         try {
             encryptedAccessToken = await IdbLoad("account", "mx_access_token");
         } catch (error) {
-            LoggerService.error('idbLoad failed to read mx_access_token in account table', error);  
+            logger.error('idbLoad failed to read mx_access_token in account table', error);  
         }
 
         if (!encryptedAccessToken) {
@@ -56,7 +56,7 @@ export const MatrixService: MatrixServiceInterface = {
                     await IdbSave("account", "mx_access_token", accessToken);
                     localStorage.removeItem("mx_access_token"); //remove from localStorage
                 } catch (e) {
-                    LoggerService.error("migration of access token to IndexedDB failed", e);
+                    logger.error("migration of access token to IndexedDB failed", e);
                 }
             }
         }
@@ -91,7 +91,7 @@ export const MatrixService: MatrixServiceInterface = {
                 encryptedAccessToken = await encryptAES(accessToken, aesKey, 'access_token');
                 aesKey.fill(0); // needs to zero it after using
             } catch (error) {
-                LoggerService.error('Could not encrypt access token')
+                logger.error('Could not encrypt access token')
             }
         
             try {
@@ -117,7 +117,7 @@ export const MatrixService: MatrixServiceInterface = {
                 localStorage.setItem("mx_access_token", client.getAccessToken());
             }
             if (localStorage.getItem("mx_has_pickle_key")) {
-                LoggerService.error("Expected a pickle key, but none provided.  Encryption may not work.");
+                logger.error("Expected a pickle key, but none provided.  Encryption may not work.");
             }
         }
     },
@@ -130,7 +130,7 @@ const CreateOrUpdateClient = (opts: ICreateClientOpts) => {
     if(MatrixService.client) {
         MatrixService.client.stopClient();
     }
-    LoggerService.info('creating/updating client');
+    logger.info('creating/updating client');
     MatrixService.client = createClient(opts);
 } 
 
@@ -168,9 +168,10 @@ export const Login = async (username: string, password: string) => {
 
         return Promise.resolve(true);
     } catch (error) {
-        LoggerService.debug('Error when trying to login to mx', error);
+        logger.debug('Error when trying to login to mx', error);
         return Promise.reject('Could not login');
     } finally {
+        if (!GetClient().getAccessToken()) { return }
         const clientOpts = await PrepareCryptoBasics(GetClient(), MatrixService.getDeviceId());
         CreateOrUpdateClient(clientOpts);
         await SetupCryptoBasics(GetClient(), true);
@@ -186,7 +187,7 @@ export const SetupMatrixBasics = async () => {
     const store = await CreateIndexDBStore();
 
     if(!MatrixService.hasStoreInitialized()) {
-        LoggerService.error('Could not setup mx basics. Encrypted is disabled');
+        logger.error('Could not setup mx basics. Encrypted is disabled');
         return;
     }
     await CreateOrUpdateClient({ 

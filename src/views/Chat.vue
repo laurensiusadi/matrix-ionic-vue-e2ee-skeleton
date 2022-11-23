@@ -42,7 +42,7 @@
 import { OpenImagePicker } from '@/helpers/attachments';
 import { EventFilterType, GetEventTime, GetRoomAvatar, GetSenderAvatar, IsAcceptedEventType, IsMyMessage, LoadPreviousMessages, SendImage, SendMessage, UploadContent } from '@/helpers/matrix';
 import router from '@/router';
-import { LoggerService } from '@/services/logger';
+import { logger } from '@/services/logger';
 import { GetClient, MatrixService } from '@/services/matrix';
 import { SyncService } from '@/services/sync';
 import { ActiveItemsStore } from '@/store/active';
@@ -173,7 +173,7 @@ export default defineComponent({
     const fileChooser = () => {
       OpenImagePicker().then(async (image) => {
         if(!image || !image.webPath) {
-          LoggerService.error('Could not upload image this time. Path returned is empty');
+          logger.error('Could not upload image this time. Path returned is empty');
           return;
         }
         const imageResponse = await axios.get(image.webPath, { responseType: 'arraybuffer' });
@@ -183,16 +183,14 @@ export default defineComponent({
             return;
           }
           const uploadResponse = await UploadContent(imageResponse.data, {
-            rawResponse: false,
-            type: imageType,
-            onlyContentUri: false
+            type: imageType
           });
 
           const mxUrl = uploadResponse.content_uri;
 
           SendImage(room.value.roomId, mxUrl, { mimetype: image.format }, textModel || 'Check this out');
         } catch (error) {
-          LoggerService.error('Could not send image this time.', error);
+          logger.error('Could not send image this time.', error);
         }
       })
     };
@@ -228,8 +226,8 @@ export default defineComponent({
       if(!ActiveItemsStore.room.value) {
         watch(MatrixService.firstSyncDone, (isSynced) => {
           if(isSynced) {
-            ActiveItemsStore.room.value = GetClient().getRoom(roomId as string);
-            room.value = ActiveItemsStore.room.value;
+            ActiveItemsStore.room.value = GetClient().getRoom(roomId as string) ?? undefined;
+            room.value = ActiveItemsStore.room.value ?? null;
             SyncService.shouldUpdateClient.value = true;
           }
         })

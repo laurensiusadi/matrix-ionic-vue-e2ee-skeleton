@@ -12,7 +12,7 @@ import '@ionic/vue/css/structure.css';
 import '@ionic/vue/css/text-alignment.css';
 import '@ionic/vue/css/text-transformation.css';
 import '@ionic/vue/css/typography.css';
-import Olm from 'olm';
+import Olm from '@matrix-org/olm';
 import { createApp } from 'vue';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import App from './App.vue';
@@ -29,6 +29,4 @@ const app = createApp(App)
   .use(IonicVue)
   .use(router);
   
-router.isReady().then(() => {
-  app.mount('#app');
-});
+app.mount('#app');

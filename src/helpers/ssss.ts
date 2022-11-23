@@ -1,4 +1,4 @@
-import { LoggerService } from '@/services/logger';
+import { logger } from '@/services/logger';
 import { GetClient } from '@/services/matrix';
 import { ICryptoCallbacks } from 'matrix-js-sdk';
 import { ISecretStorageKeyInfo } from 'matrix-js-sdk/lib/crypto/api';
@@ -8,6 +8,11 @@ import { deriveKey } from 'matrix-js-sdk/src/crypto/key_passphrase';
 import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
 import { IdbLoad, IdbSave } from './idb';
 
+// This stores the secret storage private keys in memory for the JS SDK. This is
+// only meant to act as a cache to avoid prompting the user multiple times
+// during the same single operation. Use `accessSecretStorage` below to scope a
+// single secret storage operation, as it will clear the cached keys once the
+// operation ends.
 const secretStorageBeingAccessed = false;
 const secretStorageKeys: Record<string, Uint8Array> = {};
 const secretStorageKeyInfo: Record<string, ISecretStorageKeyInfo> = {};
@@ -53,13 +58,14 @@ async function getSecretStorageKey(
     ssssItemName
 ): Promise<any> {
     const cli = GetClient();
-    let keyId = await cli.getDefaultSecretStorageKeyId();
+    let keyId: string = await cli.getDefaultSecretStorageKeyId();
     let keyInfo;
     if(!keyInfos) {
         return ['', new Uint8Array()];
     }
     if (keyId) {
         // use the default SSSS key if set
+        console.log('keyid', keyInfos[keyId]);
         keyInfo = keyInfos[keyId];
         if (!keyInfo) {
             // if the default key is not available, pretend the default key
@@ -67,7 +73,6 @@ async function getSecretStorageKey(
             keyId = '';
         }
     }
-    console.log('keyid',keyInfos[keyId]);
     if (!keyId) {
         // if no default SSSS key is set, fall back to a heuristic of using the
         // only available key, if only one key is set
@@ -132,13 +137,13 @@ async function onSecretRequested(
     name: string,
     deviceTrust: DeviceTrustLevel,
 ): Promise<string> {
-    LoggerService.debug("onSecretRequested", userId, deviceId, requestId, name, deviceTrust);
+    logger.debug("onSecretRequested", userId, deviceId, requestId, name, deviceTrust);
     const client = GetClient();
     if (userId !== client.getUserId()) {
         return '';
     }
     if (!deviceTrust || !deviceTrust.isVerified()) {
-        LoggerService.debug(`Ignoring secret request from untrusted device ${deviceId}`);
+        logger.debug(`Ignoring secret request from untrusted device ${deviceId}`);
         return '';
     }
     if (
@@ -151,7 +156,7 @@ async function onSecretRequested(
         const keyId = name.replace("m.cross_signing.", "");
         const key = await callbacks.getCrossSigningKeyCache(keyId);
         if (!key) {
-            LoggerService.debug(
+            logger.debug(
                 `${keyId} requested by ${deviceId}, but not found in cache`
             );
         }
@@ -159,7 +164,7 @@ async function onSecretRequested(
     } else if (name === "m.megolm_backup.v1") {
         const key = await client.crypto.getSessionBackupPrivateKey();
         if (!key) {
-            LoggerService.debug(
+            logger.debug(
                 `session backup key requested by ${deviceId}, but not found in cache`,
             );
         }
@@ -167,7 +172,7 @@ async function onSecretRequested(
             return encodeBase64(key);
         }
     }
-    LoggerService.warn("onSecretRequested didn't recognise the secret named ", name);
+    logger.warn("onSecretRequested didn't recognise the secret named ", name);
     return '';
 }
 
@@ -194,13 +199,13 @@ export const GetPickleKey = async (userId: string, deviceId: string): Promise<st
    try {
        data = await IdbLoad("pickleKey", [userId, deviceId]);
    } catch (e) {
-       LoggerService.error("idbLoad for pickleKey failed", e);
+       logger.error("idbLoad for pickleKey failed", e);
    }
    if (!data) {
        return null;
    }
    if (!data.encrypted || !data.iv || !data.cryptoKey) {
-    LoggerService.error("Badly formatted pickle key");
+    logger.error("Badly formatted pickle key");
        return null;
    }
 
@@ -220,7 +225,7 @@ export const GetPickleKey = async (userId: string, deviceId: string): Promise<st
        );
        return encodeUnpaddedBase64(key);
    } catch (e) {
-    LoggerService.error("Error decrypting pickle key");
+    logger.error("Error decrypting pickle key");
        return null;
    }
 }

@@ -68,6 +68,6 @@ export class IStoreExtension {
 export class MatrixExtension {
     @extension(MatrixClient)
     static getReactiveRooms(thisArg: MatrixClient) {
-        return thisArg.store.getReactiveRooms();
+        return (thisArg.store as any).getReactiveRooms();
     }
 }

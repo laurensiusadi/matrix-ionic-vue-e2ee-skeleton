@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { LoggerService } from '@/services/logger';
+import { logger } from '@/services/logger';
 import { actionSheetController, IonBadge, IonIcon, IonLabel, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/vue';
 import { addCircle, chatbox, close, image, videocam } from 'ionicons/icons';
 import { defineComponent } from 'vue';
@@ -55,21 +55,21 @@ export default defineComponent({
               text: 'Chat',
               icon: chatbox,
               handler: () => {
-                LoggerService.info('Chat clicked')
+                logger.info('Chat clicked')
               },
             },
             {
               text: 'Clip',
               icon: videocam,
               handler: () => {
-                LoggerService.info('Clip clicked')
+                logger.info('Clip clicked')
               },
             },
             {
               text: 'Album',
               icon: image,
               handler: () => {
-                LoggerService.info('Album clicked')
+                logger.info('Album clicked')
               },
             },
             {
@@ -77,7 +77,7 @@ export default defineComponent({
               icon: close,
               role: 'cancel',
               handler: () => {
-                LoggerService.info('Cancel clicked')
+                logger.info('Cancel clicked')
               },
             },
           ],
@@ -85,7 +85,7 @@ export default defineComponent({
       await actionSheet.present();
 
       const { role } = await actionSheet.onDidDismiss();
-      LoggerService.info('onDidDismiss resolved with role', role);
+      logger.info('onDidDismiss resolved with role', role);
     }
 
     return {

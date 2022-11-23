@@ -18,7 +18,7 @@
 <script lang="ts">
 import { SignIn } from '@/helpers/matrix';
 import router from '@/router';
-import { LoggerService } from '@/services/logger';
+import { logger } from '@/services/logger';
 import { GetClient, MatrixService } from '@/services/matrix';
 import { IonButton, IonContent, IonInput, IonLabel, IonPage } from '@ionic/vue';
 import { defineComponent } from 'vue';
@@ -56,14 +56,14 @@ export default defineComponent({
     const signUp = async () => {
       try {
         const result = await GetClient().register(usernameInput, passwordInput, null, { type: 'm.login.password' })
-        console.log('SIGNUP', result, result.data.session);
-        if(result.session)  {
+        if (result?.data?.session)  {
+          console.log('SIGNUP', result, result.data.session);
           await GetClient().register(usernameInput, passwordInput, result.data.session, { type: 'm.login.password', session: result.data.session })
         }
         
       } catch(error: any) {
         console.log(error.data.session);
-        LoggerService.error('Could not sign up', error);
+        logger.error('Could not sign up', error);
       }
     }
 

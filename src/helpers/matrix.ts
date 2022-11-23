@@ -1,6 +1,6 @@
 import ConfigService from '@/services/config';
 import { LocalNotifications } from '@capacitor/local-notifications';
-import { Callback, IUploadOpts, MatrixEvent, Room } from 'matrix-js-sdk';
+import { Callback, UploadOpts, MatrixEvent, Room } from 'matrix-js-sdk';
 import { IImageInfo } from 'matrix-js-sdk/lib/@types/partials';
 import { GetClient, Login, MatrixService, StartClient } from './../services/matrix';
 import { PrepareSync } from './../services/sync';
@@ -14,7 +14,7 @@ export const GetSenderAvatar = (item: MatrixEvent) => {
     if(!item) {
         return ConfigService.defaultAvatar;
     }
-    return item.sender.getAvatarUrl(ConfigService.MatrixUrl, 50, 50, 'scale', true, false) || ConfigService.defaultAvatar;
+    return item.sender?.getAvatarUrl(ConfigService.MatrixUrl, 50, 50, 'scale', true, false) ?? ConfigService.defaultAvatar;
 }
 
 export const GetRoomAvatar = (room: Room) => {
@@ -23,7 +23,7 @@ export const GetRoomAvatar = (room: Room) => {
     }
     let roomAvatar = room.getAvatarUrl(ConfigService.MatrixUrl, 100, 100, 'scale', true);
     if(!roomAvatar && room.getJoinedMemberCount() === 2) {
-        roomAvatar = room.getAvatarFallbackMember().getAvatarUrl(ConfigService.MatrixUrl, 100, 100, 'scale', true, false);
+        roomAvatar = room.getAvatarFallbackMember()?.getAvatarUrl(ConfigService.MatrixUrl, 100, 100, 'scale', true, false);
     }
     return roomAvatar  || ConfigService.defaultAvatar;
 }
@@ -38,11 +38,11 @@ export const SendMessage = (roomId: string, body: string, callBack?: Callback) =
     GetClient().sendTextMessage(roomId, body, txnId, callBack);
 } 
 
-export const UploadContent = (file: File, opts?: IUploadOpts) => {
+export const UploadContent = (file: File, opts?: UploadOpts) => {
     return GetClient().uploadContent(file, opts)
 }
 
-export const SendImage = (roomId: string, mxUrl: string, info?: IImageInfo, text?: string, callback?: Callback) => {
+export const SendImage = (roomId: string, mxUrl: string, info: IImageInfo, text?: string, callback?: Callback) => {
     GetClient().sendImageMessage(roomId, mxUrl, info, text, callback)
 }
 
@@ -66,6 +66,7 @@ export const SignIn = (username: string, password: string) => {
  */
 export const LoadPreviousMessages = async (roomId: string, limit = 40) => {
     const _room = GetClient().getRoom(roomId);
+    if (!_room) { return false }
     const stillHasEvents = await GetClient().paginateEventTimeline(_room.getLiveTimeline(), { limit, backwards: true });
     if (stillHasEvents) {
         await _room.decryptAllEvents();

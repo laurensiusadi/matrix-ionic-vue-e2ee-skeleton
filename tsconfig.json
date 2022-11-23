@@ -13,15 +13,13 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "webpack-env",
       "node",
       "matrix-js-sdk",
-      "olm"
+      "@matrix-org/olm",
+      "vite/client"
     ],
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["./src/*"],
     },
     "lib": [
       "esnext",
