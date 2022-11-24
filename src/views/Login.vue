@@ -5,7 +5,7 @@
         <ion-label>Username:</ion-label>
         <ion-input class="input" v-bind:value="usernameInput" @change="changeUsername"></ion-input>
         <ion-label class="margin-top-10">Password:</ion-label>
-        <ion-input class="input" v-bind:value="passwordInput" @change="changePassword"></ion-input>
+        <ion-input class="input" type="password" v-bind:value="passwordInput" @change="changePassword"></ion-input>
         <div class="action-controls">
           <ion-button color="success" @click="login">Login</ion-button> or
           <ion-button color="primary" @click="signUp">Sign up</ion-button>
@@ -21,7 +21,7 @@ import router from '@/router';
 import { logger } from '@/services/logger';
 import { GetClient, MatrixService } from '@/services/matrix';
 import { IonButton, IonContent, IonInput, IonLabel, IonPage } from '@ionic/vue';
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 
 export default defineComponent({
   name: 'Home',
@@ -67,6 +67,18 @@ export default defineComponent({
       }
     }
 
+    onMounted(async () => {
+      if (userId && deviceId) {
+        const cachedAccessToken = await MatrixService.getCachedAccessToken();
+        if (cachedAccessToken) {
+          // no need to pass username or password because it will login using cached accessToken
+          SignIn('---', '---').then(() => {
+            router.back();
+          });
+        }
+      }
+    })
+
     return {
       login,
       signUp,
@@ -77,17 +89,6 @@ export default defineComponent({
       userId,
       deviceId
     };
-  },
-  async mounted() {
-    if(this.userId && this.deviceId) {
-       const cachedAccessToken = await MatrixService.getCachedAccessToken();
-       if(cachedAccessToken) {
-         // no need to pass username or password because it will login using cached accessToken
-         SignIn('---', '---').then(() => {
-           router.back();
-         });
-       }
-    }
   }
 });
 </script>

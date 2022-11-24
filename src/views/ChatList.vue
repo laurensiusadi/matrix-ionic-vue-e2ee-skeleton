@@ -4,7 +4,7 @@
         <ion-label >Ionic Matrix Skeleton</ion-label>
         <ion-icon class="default-icon-size" :icon="menu"></ion-icon>
     </ion-header>
-    <ion-searchbar debounce="500" @input="search"></ion-searchbar>
+    <ion-searchbar :debounce="500" @input="search"></ion-searchbar>
     <ion-content class="ion-content" @vnode-updated="updated">
       <ion-spinner class="center-spinner" name="crescent" v-if="loadingRooms || !uiRendered"></ion-spinner>
       <ion-list>
@@ -24,7 +24,7 @@ import { GetRoomAvatar } from '@/helpers/matrix';
 import router from '@/router';
 import { GetRoomAccountData, GetRooms, MatrixService } from '@/services/matrix';
 import { ActiveItemsStore } from '@/store/active';
-import { IonAvatar, IonContent, IonHeader, IonIcon, IonImg, IonItem, IonLabel, IonList, IonPage, IonSearchbar } from '@ionic/vue';
+import { IonAvatar, IonContent, IonHeader, IonIcon, IonImg, IonItem, IonLabel, IonList, IonPage, IonSearchbar, IonSpinner } from '@ionic/vue';
 import { menu } from 'ionicons/icons';
 import { Room } from 'matrix-js-sdk';
 import { defineComponent, nextTick, ref, watch } from 'vue';
@@ -41,7 +41,8 @@ export default defineComponent({
     IonPage,
     IonHeader,
     IonSearchbar,
-    IonIcon
+    IonIcon,
+    IonSpinner
   },
   setup() {
     const rooms = ref(Array<Room>());

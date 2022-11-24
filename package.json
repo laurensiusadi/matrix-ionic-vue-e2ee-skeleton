@@ -26,6 +26,7 @@
     "@matrix-org/olm": "https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.8.tgz",
     "axios": "^0.24.0",
     "browser-encrypt-attachment": "^0.3.0",
+    "buffer": "^6.0.3",
     "loglevel": "^1.8.1",
     "matrix-js-sdk": "^21.2.0",
     "setimmediate": "^1.0.5",
